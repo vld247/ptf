@@ -39,6 +39,8 @@
             text-align: center;
             width: 100%;
             max-width: 300px;
+            display: flex;
+            justify-content: center;
         }
         .display-6 {
             font-weight: bold;
@@ -228,7 +230,7 @@
                     tableBody2.appendChild(row2);
 
                     // Collect data for the pie chart
-                    pieChartLabels.push(etfDisplayNames[etf.symbol] || etf.symbol);
+                    pieChartLabels.push(`${etfDisplayNames[etf.symbol] || etf.symbol} (${((portfolioValue / totalValue) * 100).toFixed(1)}%)`);
                     pieChartData.push(portfolioValue);
 
                 } catch (error) {
@@ -238,7 +240,7 @@
 
             document.getElementById("portfolio-value").innerText = `€${totalValue.toFixed(2)}`;
 
-            // Create the pie chart
+            // Create the pie chart with percentages
             new Chart(document.getElementById("portfolio-piechart"), {
                 type: "pie",
                 data: {
