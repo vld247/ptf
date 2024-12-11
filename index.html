@@ -207,14 +207,14 @@
 
                     totalValue += portfolioValue;
 
-                    // Update the first table with the display name
+                    // Update the first table with the display name and remove EUR symbols
                     const row1 = document.createElement("tr");
                     row1.innerHTML = `
                         <td>${etfDisplayNames[etf.symbol] || etf.symbol}</td>
-                        <td>€${currentValue.toFixed(2)}</td>
-                        <td class="text-change ${dayChange >= 0 ? 'text-success' : 'text-danger'}">€${dayChange.toFixed(2)}</td>
-                        <td class="text-change ${weekChange >= 0 ? 'text-success' : 'text-danger'}">€${weekChange.toFixed(2)}</td>
-                        <td class="text-change ${monthChange >= 0 ? 'text-success' : 'text-danger'}">€${monthChange.toFixed(2)}</td>
+                        <td>${currentValue.toFixed(2)}</td>
+                        <td class="text-change ${dayChange >= 0 ? 'text-success' : 'text-danger'}">${dayChange.toFixed(2)}</td>
+                        <td class="text-change ${weekChange >= 0 ? 'text-success' : 'text-danger'}">${weekChange.toFixed(2)}</td>
+                        <td class="text-change ${monthChange >= 0 ? 'text-success' : 'text-danger'}">${monthChange.toFixed(2)}</td>
                     `;
                     tableBody1.appendChild(row1);
 
