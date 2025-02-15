@@ -200,9 +200,9 @@
                     const prices = etfData.close;
 
                     const currentValue = prices[prices.length - 1];
-                    const dayChange = currentValue - prices[prices.length - 2];
-                    const weekChange = currentValue - prices[prices.length - 6];
-                    const monthChange = currentValue - prices[0];
+                    const dayChange = ((currentValue - prices[prices.length - 2]) / prices[prices.length - 2]) * 100;
+                    const weekChange = ((currentValue - prices[prices.length - 6]) / prices[prices.length - 6]) * 100;
+                    const monthChange = ((currentValue - prices[0]) / prices[0]) * 100;
 
                     const investment = etf.quantity * etf.buyPrice;
                     const portfolioValue = etf.quantity * currentValue;
@@ -215,9 +215,9 @@
                     row1.innerHTML = `
                         <td>${etfDisplayNames[etf.symbol] || etf.symbol}</td>
                         <td>${currentValue.toFixed(2)}</td>
-                        <td class="text-change ${dayChange >= 0 ? 'text-success' : 'text-danger'}">${dayChange.toFixed(2)}</td>
-                        <td class="text-change ${weekChange >= 0 ? 'text-success' : 'text-danger'}">${weekChange.toFixed(2)}</td>
-                        <td class="text-change ${monthChange >= 0 ? 'text-success' : 'text-danger'}">${monthChange.toFixed(2)}</td>
+                        <td class="text-change ${dayChange >= 0 ? 'text-success' : 'text-danger'}">${dayChange.toFixed(2)}%</td>
+                        <td class="text-change ${weekChange >= 0 ? 'text-success' : 'text-danger'}">${weekChange.toFixed(2)}%</td>
+                        <td class="text-change ${monthChange >= 0 ? 'text-success' : 'text-danger'}">${monthChange.toFixed(2)}%</td>
                     `;
                     tableBody1.appendChild(row1);
 
@@ -233,7 +233,6 @@
                     // Collect data for the pie chart
                     pieChartLabels.push(etfDisplayNames[etf.symbol] || etf.symbol);
                     pieChartData.push(portfolioValue);
-
                 } catch (error) {
                     console.error(`Failed to fetch or process data for ${etf.symbol}:`, error);
                 }
