@@ -2,91 +2,279 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Tracker ETF</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <style>
         body {
             display: flex;
             flex-direction: column;
             align-items: center;
             padding: 20px;
-            transition: background 0.3s, color 0.3s;
-        }
-        .dark-mode {
-            background-color: #121212;
-            color: #ffffff;
         }
         .container {
-            max-width: 800px;
-        }
-        .chart-container {
             width: 100%;
             max-width: 600px;
-            margin: 20px auto;
         }
-        .toggle-container {
+        .row {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .col-md-4, .col-md-8 {
+            width: 100%;
+            margin-bottom: 20px;
+        }
+        .card {
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        #portfolio-piechart {
+            max-width: 300px;
+            margin: 0 auto;
+        }
+        .piechart-container {
+            margin-top: 40px;
+            text-align: center;
+            width: 100%;
+            max-width: 300px;
             display: flex;
             justify-content: center;
-            margin-bottom: 20px;
+        }
+        .display-6 {
+            font-weight: bold;
+            text-align: center;
+        }
+        .text-change {
+            font-weight: bold;
+        }
+        @media (max-width: 767px) {
+            .table-responsive {
+                display: block;
+                width: 100%;
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+            .table-responsive > .table-bordered {
+                border: 0;
+            }
+            .table-responsive > .table-bordered > thead > tr > th,
+            .table-responsive > .table-bordered > tbody > tr > td {
+                white-space: nowrap;
+            }
+            .table-responsive > .table-bordered > thead > tr > th:first-child,
+            .table-responsive > .table-bordered > tbody > tr > td:first-child {
+                border-left: 2px solid black;
+            }
+            .table-responsive > .table-bordered > thead > tr > th:last-child,
+            .table-responsive > .table-bordered > tbody > tr > td:last-child {
+                border-right: 2px solid black;
+            }
+            .table-responsive > .table-bordered > thead > tr > th,
+            .table-responsive > .table-bordered > tbody > tr > td {
+                border-top: 2px solid black;
+            }
+            .table-responsive > .table-bordered > thead > tr:first-child > th {
+                border-top: 0;
+            }
+            .table-responsive > .table-bordered > tbody > tr:last-child > td {
+                border-bottom: 2px solid black;
+            }
+            .table-responsive > .table-bordered:nth-child(2) > thead > tr > th:nth-child(-n+5),
+            .table-responsive > .table-bordered:nth-child(2) > tbody > tr > td:nth-child(-n+5) {
+                display: none;
+            }
+            .table-responsive > .table-bordered > thead > tr > th:nth-child(n+6),
+            .table-responsive > .table-bordered > tbody > tr > td:nth-child(n+6) {
+                display: none;
+            }
+        }
+        .table-bordered {
+            border: 2px solid black;
+        }
+        .table-bordered > thead > tr > th,
+        .table-bordered > tbody > tr > td {
+            border: 2px solid black;
         }
     </style>
 </head>
 <body>
-    <div class="toggle-container">
-        <button id="dark-mode-toggle" class="btn btn-primary">Toggle Dark Mode</button>
-    </div>
     <div class="container">
         <h1 class="text-center mb-4">Tracker ETF</h1>
-        <div class="chart-container">
-            <canvas id="portfolio-linechart"></canvas>
+
+        <div class="row">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body">
+                        <h5 class="card-title">Valoarea Portofoliului</h5>
+                        <p id="portfolio-value" class="display-6">Încărcare...</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-8">
+                <h3 class="mt-4">Detalii ETF</h3>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>ETF</th>
+                                <th>Valoare</th>
+                                <th>1D</th>
+                                <th>1W</th>
+                                <th>1M</th>
+                            </tr>
+                        </thead>
+                        <tbody id="etf-table-body-1">
+                            <!-- Rows added dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered">
+                        <thead>
+                            <tr>
+                                <th>Dețineri</th>
+                                <th>Investiție</th>
+                                <th>Câștig/Pierdere</th>
+                            </tr>
+                        </thead>
+                        <tbody id="etf-table-body-2">
+                            <!-- Rows added dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="piechart-container">
+            <canvas id="portfolio-piechart"></canvas>
         </div>
     </div>
+
     <script>
-        const etfs = ["ASWC.DE", "VUAA.DE", "VWCE.DE"];
-        const apiKey = "Bpnpz56Q3d9wIs7SPhNNd43ZKvLa77NV3uJgWKot"; 
-        
-        async function fetchHistoricalData(symbols) {
-            const response = await fetch(`https://yfapi.net/v8/finance/spark?symbols=${symbols}&range=1mo&interval=1d`, {
+        const etfs = [
+            { symbol: "ASWC.DE", quantity: 165, buyPrice: 11.7139 },
+            { symbol: "VUAA.DE", quantity: 37, buyPrice: 110.3089 },
+            { symbol: "VWCE.DE", quantity: 29, buyPrice: 137.0976 }
+        ];
+        const apiKey = "Bpnpz56Q3d9wIs7SPhNNd43ZKvLa77NV3uJgWKot"; // Replace with your RapidAPI key
+
+        // Mapping of ETF symbols to display names
+        const etfDisplayNames = {
+            "ASWC.DE": "NATO",
+            "VUAA.DE": "S&P500",
+            "VWCE.DE": "WORLD"
+        };
+
+        async function fetchETFData(symbol) {
+            const response = await fetch(`https://yfapi.net/v8/finance/spark?symbols=${symbol}&range=1mo&interval=1d`, {
                 method: "GET",
-                headers: { "x-api-key": apiKey }
+                headers: {
+                    "x-api-key": apiKey
+                }
             });
             return response.json();
         }
-        
-        async function updateChart() {
-            const data = await fetchHistoricalData(etfs.join(","));
-            const datasets = [];
-            let labels = [];
 
-            Object.keys(data).forEach((symbol, index) => {
-                if (data[symbol] && data[symbol].timestamp && data[symbol].close) {
-                    labels = data[symbol].timestamp.map(ts => new Date(ts * 1000).toLocaleDateString());
-                    datasets.push({
-                        label: symbol,
-                        data: data[symbol].close,
-                        borderColor: ["#FF6384", "#36A2EB", "#FFCE56"][index],
-                        fill: false
-                    });
+        async function updatePortfolio() {
+            let totalValue = 0;
+            let pieChartLabels = [];
+            let pieChartData = [];
+            const tableBody1 = document.getElementById("etf-table-body-1");
+            const tableBody2 = document.getElementById("etf-table-body-2");
+
+            for (const etf of etfs) {
+                try {
+                    const data = await fetchETFData(etf.symbol);
+                    console.log(`Data for ${etf.symbol}:`, data); // Log API response for debugging
+                    const etfData = data[etf.symbol];
+
+                    if (!etfData || !etfData.close) {
+                        console.error(`No data available for ${etf.symbol}`);
+                        continue; // Skip to the next ETF if data is missing
+                    }
+
+                    const prices = etfData.close;
+
+                    const currentValue = prices[prices.length - 1];
+                    const dayChange = currentValue - prices[prices.length - 2];
+                    const weekChange = currentValue - prices[prices.length - 6];
+                    const monthChange = currentValue - prices[0];
+
+                    const investment = etf.quantity * etf.buyPrice;
+                    const portfolioValue = etf.quantity * currentValue;
+                    const gainLoss = portfolioValue - investment;
+
+                    totalValue += portfolioValue;
+
+                    // Update the first table with the display name and remove EUR symbols
+                    const row1 = document.createElement("tr");
+                    row1.innerHTML = `
+                        <td>${etfDisplayNames[etf.symbol] || etf.symbol}</td>
+                        <td>${currentValue.toFixed(2)}</td>
+                        <td class="text-change ${dayChange >= 0 ? 'text-success' : 'text-danger'}">${dayChange.toFixed(2)}</td>
+                        <td class="text-change ${weekChange >= 0 ? 'text-success' : 'text-danger'}">${weekChange.toFixed(2)}</td>
+                        <td class="text-change ${monthChange >= 0 ? 'text-success' : 'text-danger'}">${monthChange.toFixed(2)}</td>
+                    `;
+                    tableBody1.appendChild(row1);
+
+                    // Update the second table with "x" after quantity
+                    const row2 = document.createElement("tr");
+                    row2.innerHTML = `
+                        <td>${etf.quantity}x</td>
+                        <td>€${investment.toFixed(2)}</td>
+                        <td class="${gainLoss >= 0 ? 'text-success' : 'text-danger'}">€${gainLoss.toFixed(2)}</td>
+                    `;
+                    tableBody2.appendChild(row2);
+
+                    // Collect data for the pie chart
+                    pieChartLabels.push(etfDisplayNames[etf.symbol] || etf.symbol);
+                    pieChartData.push(portfolioValue);
+
+                } catch (error) {
+                    console.error(`Failed to fetch or process data for ${etf.symbol}:`, error);
                 }
-            });
+            }
 
-            new Chart(document.getElementById("portfolio-linechart"), {
-                type: "line",
-                data: { labels, datasets },
+            document.getElementById("portfolio-value").innerText = `€${totalValue.toFixed(2)}`;
+
+            // Create the pie chart with percentages
+            new Chart(document.getElementById("portfolio-piechart"), {
+                type: "pie",
+                data: {
+                    labels: pieChartLabels,
+                    datasets: [{
+                        data: pieChartData,
+                        backgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"],
+                        hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"]
+                    }]
+                },
                 options: {
                     responsive: true,
-                    plugins: { legend: { position: "top" } },
-                }
+                    plugins: {
+                        legend: {
+                            position: "top"
+                        },
+                        datalabels: {
+                            formatter: (value, context) => {
+                                let percentage = ((value / totalValue) * 100).toFixed(1) + '%';
+                                return percentage;
+                            },
+                            color: '#fff',
+                            font: {
+                                size: 14,
+                            }
+                        }
+                    }
+                },
+                plugins: [ChartDataLabels]
             });
         }
-        
-        document.getElementById("dark-mode-toggle").addEventListener("click", () => {
-            document.body.classList.toggle("dark-mode");
-        });
-        
-        updateChart();
+
+        updatePortfolio();
     </script>
 </body>
 </html>
