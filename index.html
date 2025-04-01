@@ -47,56 +47,13 @@
             font-weight: bold;
             text-align: center;
         }
-        .text-change {
-            font-weight: bold;
-        }
-        @media (max-width: 767px) {
-            .table-responsive {
-                display: block;
-                width: 100%;
-                overflow-x: auto;
-                -webkit-overflow-scrolling: touch;
-            }
-            .table-responsive > .table-bordered {
-                border: 0;
-            }
-            .table-responsive > .table-bordered > thead > tr > th,
-            .table-responsive > .table-bordered > tbody > tr > td {
-                white-space: nowrap;
-            }
-            .table-responsive > .table-bordered > thead > tr > th:first-child,
-            .table-responsive > .table-bordered > tbody > tr > td:first-child {
-                border-left: 2px solid black;
-            }
-            .table-responsive > .table-bordered > thead > tr > th:last-child,
-            .table-responsive > .table-bordered > tbody > tr > td:last-child {
-                border-right: 2px solid black;
-            }
-            .table-responsive > .table-bordered > thead > tr > th,
-            .table-responsive > .table-bordered > tbody > tr > td {
-                border-top: 2px solid black;
-            }
-            .table-responsive > .table-bordered > thead > tr:first-child > th {
-                border-top: 0;
-            }
-            .table-responsive > .table-bordered > tbody > tr:last-child > td {
-                border-bottom: 2px solid black;
-            }
-            .table-responsive > .table-bordered:nth-child(2) > thead > tr > th:nth-child(-n+5),
-            .table-responsive > .table-bordered:nth-child(2) > tbody > tr > td:nth-child(-n+5) {
-                display: none;
-            }
-            .table-responsive > .table-bordered > thead > tr > th:nth-child(n+6),
-            .table-responsive > .table-bordered > tbody > tr > td:nth-child(n+6) {
-                display: none;
-            }
-        }
-        .table-bordered {
-            border: 2px solid black;
-        }
-        .table-bordered > thead > tr > th,
-        .table-bordered > tbody > tr > td {
-            border: 2px solid black;
+        .investment-box {
+            text-align: center;
+            margin-top: 20px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 5px;
+            border: 1px solid #dee2e6;
         }
     </style>
 </head>
@@ -112,10 +69,14 @@
                         <p id="portfolio-value" class="display-6">Încărcare...</p>
                     </div>
                 </div>
+
+                <!-- Investment Box -->
+                <div id="investment-box" class="investment-box"></div>
             </div>
 
             <div class="col-md-8">
                 <h3 class="mt-4">Detalii ETF</h3>
+                <!-- First Table -->
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
@@ -127,11 +88,11 @@
                                 <th>1M</th>
                             </tr>
                         </thead>
-                        <tbody id="etf-table-body-1">
-                            <!-- Rows added dynamically -->
-                        </tbody>
+                        <tbody id="etf-table-body-1"></tbody>
                     </table>
                 </div>
+
+                <!-- Second Table -->
                 <div class="table-responsive">
                     <table class="table table-bordered">
                         <thead>
@@ -141,106 +102,113 @@
                                 <th>Câștig/Pierdere</th>
                             </tr>
                         </thead>
-                        <tbody id="etf-table-body-2">
-                            <!-- Rows added dynamically -->
-                        </tbody>
+                        <tbody id="etf-table-body-2"></tbody>
                     </table>
+                </div>
+
+                <!-- Pie Chart -->
+                <div class="piechart-container">
+                    <canvas id="portfolio-piechart"></canvas>
                 </div>
             </div>
         </div>
 
-        <div class="piechart-container">
-            <canvas id="portfolio-piechart"></canvas>
-        </div>
     </div>
 
+    <!-- JavaScript -->
     <script>
         const etfs = [
             { symbol: "ASWC.DE", quantity: 165, buyPrice: 11.7139 },
             { symbol: "VUAA.DE", quantity: 52, buyPrice: 106.9777 },
             { symbol: "VWCE.DE", quantity: 29, buyPrice: 137.0976 }
         ];
-        const apiKey = "56acUZ15MK55fhNoDB8e85GNz49ah07T1gSmRU7Q"; // Replace with your RapidAPI key
+        const apiKey = "Bpnpz56Q3d9wIs7SPhNNd43ZKvLa77NV3uJgWKot"; // Replace with your API key
+        const etfDisplayNames = { "ASWC.DE": "NATO", "VUAA.DE": "S&P500", "VWCE.DE": "WORLD" };
 
-        // Mapping of ETF symbols to display names
-        const etfDisplayNames = {
-            "ASWC.DE": "NATO",
-            "VUAA.DE": "S&P500",
-            "VWCE.DE": "WORLD"
-        };
+        function formatNumber(value) {
+            return value.toLocaleString("en-US", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
 
         async function fetchETFData(symbol) {
             const response = await fetch(`https://yfapi.net/v8/finance/spark?symbols=${symbol}&range=1mo&interval=1d`, {
                 method: "GET",
-                headers: {
-                    "x-api-key": apiKey
-                }
+                headers: { "x-api-key": apiKey }
             });
             return response.json();
         }
 
         async function updatePortfolio() {
             let totalValue = 0;
-            let pieChartLabels = [];
-            let pieChartData = [];
+
             const tableBody1 = document.getElementById("etf-table-body-1");
             const tableBody2 = document.getElementById("etf-table-body-2");
+            
+            // Clear previous rows
+            tableBody1.innerHTML = "";
+            tableBody2.innerHTML = "";
+
+            let pieChartLabels = [];
+            let pieChartData = [];
 
             for (const etf of etfs) {
                 try {
                     const data = await fetchETFData(etf.symbol);
-                    console.log(`Data for ${etf.symbol}:`, data); // Log API response for debugging
                     const etfData = data[etf.symbol];
 
-                    if (!etfData || !etfData.close) {
-                        console.error(`No data available for ${etf.symbol}`);
-                        continue; // Skip to the next ETF if data is missing
-                    }
+                    if (!etfData || !etfData.close) continue;
 
                     const prices = etfData.close;
 
                     const currentValue = prices[prices.length - 1];
-                    const dayChange = ((currentValue - prices[prices.length - 2]) / prices[prices.length - 2]) * 100;
-                    const weekChange = ((currentValue - prices[prices.length - 6]) / prices[prices.length - 6]) * 100;
-                    const monthChange = ((currentValue - prices[0]) / prices[0]) * 100;
+                    const dayChange = ((currentValue - prices[prices.length - 2]) / prices[prices.length - 2]) * 100 || 0;
+                    const weekChange = ((currentValue - prices[prices.length - 6]) / prices[prices.length - 6]) * 100 || 0;
+                    const monthChange = ((currentValue - prices[0]) / prices[0]) * 100 || 0;
 
                     const investment = etf.quantity * etf.buyPrice;
                     const portfolioValue = etf.quantity * currentValue;
-                    const gainLoss = portfolioValue - investment;
 
                     totalValue += portfolioValue;
 
-                    // Update the first table with the display name and remove EUR symbols
+                    // Populate first table
                     const row1 = document.createElement("tr");
                     row1.innerHTML = `
                         <td>${etfDisplayNames[etf.symbol] || etf.symbol}</td>
-                        <td>${currentValue.toFixed(2)}</td>
-                        <td class="text-change ${dayChange >= 0 ? 'text-success' : 'text-danger'}">${dayChange.toFixed(2)}%</td>
-                        <td class="text-change ${weekChange >= 0 ? 'text-success' : 'text-danger'}">${weekChange.toFixed(2)}%</td>
-                        <td class="text-change ${monthChange >= 0 ? 'text-success' : 'text-danger'}">${monthChange.toFixed(2)}%</td>
-                    `;
+                        <td>${formatNumber(currentValue)}</td>
+                        <td class="${dayChange >= 0 ? 'text-success' : 'text-danger'}">${dayChange.toFixed(2)}%</td>
+                        <td class="${weekChange >= 0 ? 'text-success' : 'text-danger'}">${weekChange.toFixed(2)}%</td>
+                        <td class="${monthChange >= 0 ? 'text-success' : 'text-danger'}">${monthChange.toFixed(2)}%</td>`;
                     tableBody1.appendChild(row1);
 
-                    // Update the second table with "x" after quantity
+                    // Populate second table
                     const row2 = document.createElement("tr");
                     row2.innerHTML = `
                         <td>${etf.quantity}x</td>
-                        <td>€${investment.toFixed(2)}</td>
-                        <td class="${gainLoss >= 0 ? 'text-success' : 'text-danger'}">€${gainLoss.toFixed(2)}</td>
-                    `;
+                        <td>${formatNumber(investment)} €</td>
+                        <td>${formatNumber(portfolioValue)} €</td>`;
                     tableBody2.appendChild(row2);
 
-                    // Collect data for the pie chart
+                    // Collect data for pie chart
                     pieChartLabels.push(etfDisplayNames[etf.symbol] || etf.symbol);
                     pieChartData.push(portfolioValue);
                 } catch (error) {
-                    console.error(`Failed to fetch or process data for ${etf.symbol}:`, error);
+                    console.error(`Error fetching data for ${etf.symbol}:`, error);
                 }
             }
 
-            document.getElementById("portfolio-value").innerText = `€${totalValue.toFixed(2)}`;
+            // Update portfolio value
+            document.getElementById("portfolio-value").innerText = `${formatNumber(totalValue)} €`;
 
-            // Create the pie chart with percentages
+            // Calculate percentage change from €11,500
+            const investedAmount = 11500; // Investment amount
+            const percentageChange = ((totalValue - investedAmount) / investedAmount) * 100;
+
+            // Update investment box
+            document.getElementById("investment-box").innerHTML = `
+                Investit:
+                ${formatNumber(investedAmount)} €
+                (<span class="${percentageChange >= 0 ? 'text-success' : 'text-danger'}">${percentageChange.toFixed(2)}%</span>)`;
+
+            // Create Pie Chart
             new Chart(document.getElementById("portfolio-piechart"), {
                 type: "pie",
                 data: {
@@ -251,21 +219,16 @@
                         hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"]
                     }]
                 },
-                options: {
+                   options: {
                     responsive: true,
                     plugins: {
-                        legend: {
-                            position: "top"
-                        },
+                        legend: { position: "top" },
                         datalabels: {
-                            formatter: (value, context) => {
-                                let percentage = ((value / totalValue) * 100).toFixed(1) + '%';
-                                return percentage;
+                            formatter(value, context) {
+                                return ((value / totalValue) * 100).toFixed(1) + "%";
                             },
-                            color: '#fff',
-                            font: {
-                                size: 14,
-                            }
+                            color: "#fff",
+                            font: { size: 14 }
                         }
                     }
                 },
