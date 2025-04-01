@@ -99,6 +99,7 @@
                             <tr>
                                 <th>Dețineri</th>
                                 <th>Investiție</th>
+                                <th>Curent</th>
                                 <th>Câștig/Pierdere</th>
                             </tr>
                         </thead>
@@ -122,7 +123,8 @@
             { symbol: "VUAA.DE", quantity: 52, buyPrice: 106.9777 },
             { symbol: "VWCE.DE", quantity: 29, buyPrice: 137.0976 }
         ];
-        const apiKey = "Bpnpz56Q3d9wIs7SPhNNd43ZKvLa77NV3uJgWKot"; // Replace with your API key
+        const apiKey = "Bpnpz56Q3d9wIs7SPhNNd43ZKvLa77NV3uJgWKot"; // New API key
+
         const etfDisplayNames = { "ASWC.DE": "NATO", "VUAA.DE": "S&P500", "VWCE.DE": "WORLD" };
 
         function formatNumber(value) {
@@ -142,7 +144,7 @@
 
             const tableBody1 = document.getElementById("etf-table-body-1");
             const tableBody2 = document.getElementById("etf-table-body-2");
-            
+
             // Clear previous rows
             tableBody1.innerHTML = "";
             tableBody2.innerHTML = "";
@@ -166,6 +168,7 @@
 
                     const investment = etf.quantity * etf.buyPrice;
                     const portfolioValue = etf.quantity * currentValue;
+                    const gainLoss = portfolioValue - investment;
 
                     totalValue += portfolioValue;
 
@@ -184,7 +187,8 @@
                     row2.innerHTML = `
                         <td>${etf.quantity}x</td>
                         <td>${formatNumber(investment)} €</td>
-                        <td>${formatNumber(portfolioValue)} €</td>`;
+                        <td>${formatNumber(portfolioValue)} €</td> <!-- Curent column -->
+                        <td class="${gainLoss >= 0 ? 'text-success' : 'text-danger'}">${formatNumber(gainLoss)} €</td>`;
                     tableBody2.appendChild(row2);
 
                     // Collect data for pie chart
@@ -198,15 +202,12 @@
             // Update portfolio value
             document.getElementById("portfolio-value").innerText = `${formatNumber(totalValue)} €`;
 
-            // Calculate percentage change from €11,500
-            const investedAmount = 11500; // Investment amount
-            const percentageChange = ((totalValue - investedAmount) / investedAmount) * 100;
-
             // Update investment box
+            const investedAmount = 11500; // Investment amount
             document.getElementById("investment-box").innerHTML = `
                 Investit:
                 ${formatNumber(investedAmount)} €
-                (<span class="${percentageChange >= 0 ? 'text-success' : 'text-danger'}">${percentageChange.toFixed(2)}%</span>)`;
+                (<span class="${totalValue >= investedAmount ? 'text-success' : 'text-danger'}">${((totalValue - investedAmount) / investedAmount * 100).toFixed(2)}%</span>)`;
 
             // Create Pie Chart
             new Chart(document.getElementById("portfolio-piechart"), {
@@ -219,7 +220,7 @@
                         hoverBackgroundColor: ["#FF6384", "#36A2EB", "#FFCE56"]
                     }]
                 },
-                   options: {
+                options: {
                     responsive: true,
                     plugins: {
                         legend: { position: "top" },
