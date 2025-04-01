@@ -8,54 +8,96 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels"></script>
     <style>
-        body {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            padding: 20px;
+    body {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 20px;
+    }
+    .container {
+        width: 100%;
+        max-width: 600px;
+    }
+    .row {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+    .col-md-4, .col-md-8 {
+        width: 100%;
+        margin-bottom: 20px;
+    }
+    .card {
+        margin-bottom: 20px;
+        text-align: center;
+    }
+    #portfolio-piechart {
+        max-width: 300px;
+        margin: 0 auto;
+    }
+    .piechart-container {
+        margin-top: 40px;
+        text-align: center;
+        width: 100%;
+        max-width: 300px;
+        display: flex;
+        justify-content: center;
+    }
+    .display-6 {
+        font-weight: bold;
+        text-align: center;
+    }
+    .investment-box {
+        text-align: center;
+        margin-top: 20px;
+        padding: 10px;
+        background-color: #f8f9fa;
+        border-radius: 5px;
+        border: 1px solid #dee2e6;
+    }
+
+    /* Table Styling */
+    table {
+        border-collapse: collapse; /* Ensures borders don't double up */
+        width: 100%; /* Full width for table */
+    }
+
+    th, td {
+        text-align: center; /* Center-align content */
+        padding: 10px; /* Add padding for spacing */
+        white-space: nowrap; /* Prevent wrapping of content */
+    }
+
+    th {
+        font-weight: bold; /* Make headers bold */
+    }
+
+    td {
+        background-color: #ffffff; /* White background for cells */
+    }
+
+    tr:nth-child(even) td {
+        background-color: #f2f2f2; /* Alternate row colors for readability */
+    }
+
+    .table-responsive {
+        overflow-x: auto; /* Enable horizontal scrolling for small screens */
+    }
+
+    @media (max-width: 768px) {
+        table {
+            display: block; /* Ensure table behaves well on smaller screens */
+            width: 100%; /* Full width on mobile */
         }
-        .container {
-            width: 100%;
-            max-width: 600px;
-        }
-        .row {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-        .col-md-4, .col-md-8 {
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .card {
-            margin-bottom: 20px;
-            text-align: center;
-        }
-        #portfolio-piechart {
-            max-width: 300px;
-            margin: 0 auto;
-        }
-        .piechart-container {
-            margin-top: 40px;
-            text-align: center;
-            width: 100%;
-            max-width: 300px;
-            display: flex;
-            justify-content: center;
-        }
-        .display-6 {
-            font-weight: bold;
-            text-align: center;
-        }
-        .investment-box {
-            text-align: center;
-            margin-top: 20px;
-            padding: 10px;
-            background-color: #f8f9fa;
-            border-radius: 5px;
-            border: 1px solid #dee2e6;
-        }
-    </style>
+        
+        th, td {
+            font-size: 14px; /* Reduce font size for smaller screens */
+            padding: 5px; /* Compact padding for mobile view */
+            white-space: nowrap; /* Keep everything in one row */
+            overflow-x:auto
+           
+</style>
+
 </head>
 <body>
     <div class="container">
