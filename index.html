@@ -165,7 +165,7 @@
             { symbol: "VUAA.DE", quantity: 52, buyPrice: 106.9777 },
             { symbol: "VWCE.DE", quantity: 29, buyPrice: 137.0976 }
         ];
-        const apiKey = "Zr5lnkVLpiaTX2Iwy9IZp9WzOlrutKW22RKpKnMm"; // New API key
+        const apiKey = "Bpnpz56Q3d9wIs7SPhNNd43ZKvLa77NV3uJgWKot"; // New API key
 
         const etfDisplayNames = { "ASWC.DE": "NATO", "VUAA.DE": "S&P500", "VWCE.DE": "WORLD" };
 
@@ -249,7 +249,7 @@
             document.getElementById("investment-box").innerHTML = `
                 Investit:
                 ${formatNumber(investedAmount)} €
-                (<span class="${totalValue >= investedAmount ? 'text-success' : 'text-danger'}">${((totalValue - investedAmount) / investedAmount * 100).toFixed(2)}%</span>)`;
+                (<span class="${totalValue >= investedAmount ? 'text-success' : 'text-danger'}">${((totalValue - investedAmount) / investedAmount * 100).toFixed(2)}%</span>)😔`;
 
             // Create Pie Chart
             new Chart(document.getElementById("portfolio-piechart"), {
