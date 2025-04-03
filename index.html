@@ -249,7 +249,7 @@
             document.getElementById("investment-box").innerHTML = `
                 Investit:
                 ${formatNumber(investedAmount)} €
-                (<span class="${totalValue >= investedAmount ? 'text-success' : 'text-danger'}">${((totalValue - investedAmount) / investedAmount * 100).toFixed(2)}%</span>)`;
+                (<span class="${totalValue >= investedAmount ? 'text-success' : 'text-danger'}">${((totalValue - investedAmount) / investedAmount * 100).toFixed(2)}%</span>)😔`;
 
             // Create Pie Chart
             new Chart(document.getElementById("portfolio-piechart"), {
