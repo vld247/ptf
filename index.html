@@ -162,8 +162,8 @@
     <script>
         const etfs = [
             { symbol: "ASWC.DE", quantity: 165, buyPrice: 11.7139 },
-            { symbol: "VUAA.DE", quantity: 52, buyPrice: 106.9777 },
-            { symbol: "VWCE.DE", quantity: 29, buyPrice: 137.0976 }
+            { symbol: "VUAA.DE", quantity: 53, buyPrice: 107.0398 },
+            { symbol: "VWCE.DE", quantity: 41, buyPrice: 131.2480 }
         ];
         const apiKey = "Bpnpz56Q3d9wIs7SPhNNd43ZKvLa77NV3uJgWKot"; // New API key
 
@@ -245,11 +245,11 @@
             document.getElementById("portfolio-value").innerText = `${formatNumber(totalValue)} €`;
 
             // Update investment box
-            const investedAmount = 11500; // Investment amount
+            const investedAmount = 13000; // Investment amount
             document.getElementById("investment-box").innerHTML = `
                 Investit:
                 ${formatNumber(investedAmount)} €
-                (<span class="${totalValue >= investedAmount ? 'text-success' : 'text-danger'}">${((totalValue - investedAmount) / investedAmount * 100).toFixed(2)}%</span>)😔`;
+                (<span class="${totalValue >= investedAmount ? 'text-success' : 'text-danger'}">${((totalValue - investedAmount) / investedAmount * 100).toFixed(2)}%</span>)`;
 
             // Create Pie Chart
             new Chart(document.getElementById("portfolio-piechart"), {
